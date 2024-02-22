@@ -1,0 +1,58 @@
+import datetime as dt
+
+class CuentaGastos:
+    def __init__(self):
+        self.transacciones = []
+        
+    def agregar_transaccion(self, fecha, tipo, monto):
+        transaccion = {
+            "fecha": fecha,
+            "tipo": tipo,
+            "monto": float(monto)
+        }
+        self.transacciones.append(transaccion)
+
+    @staticmethod
+    def formatear_fecha(fecha_str):
+        return dt.datetime.strptime(fecha_str, '%d/%m/%Y').date()
+
+    def calcular_saldo(self):
+        total_depositos = sum([t["monto"] for t in filter(lambda x: x['tipo'] == 'd', self.transacciones)])
+        total_gastos = sum([t["monto"] for t in filter(lambda x: x['tipo'] == 'c', self.transacciones)])
+        return total_depositos - total_gastos
+
+def menu():
+    cuentagastos = CuentaGastos()
+    
+    while True:
+        print("\nMenú:\n")
+        print("a. Agregar un depósito\nb. Agregar un gasto\nc. Consultar saldo\nd. Salir")
+        opcion = input("Ingrese su elección (a/b/c/d): ")
+
+        if opcion == 'a':
+            fecha = input("Fecha (dd/mm/yyyy): ")
+            fecha = cuentagastos.formatear_fecha(fecha).isoformat()
+            monto = input("Monto (Q): ")
+            cuentagastos.agregar_transaccion(fecha, 'd', monto)
+
+        elif opcion == 'b':
+            fecha = input("Fecha (dd/mm/yyyy): ")
+            fecha = cuentagastos.formatear_fecha(fecha).isoformat()
+            monto = float(input("Monto (Q para gasto negativo): "))
+            cuentagastos.agregar_transaccion(fecha, 'c', -monto)  # Se agrega el monto como negativo
+
+        elif opcion == 'c':
+            try:
+                print(f"Saldo actual: Q{cuentagastos.calcular_saldo():,.2f}")
+            except ZeroDivisionError:
+                print("No hay transacciones registradas.")
+
+        elif opcion == 'd':
+            print("¡Hasta luego!")
+            break
+
+        else:
+            print("Opción inválida.\n")
+
+if __name__ == "__main__":
+    menu()
